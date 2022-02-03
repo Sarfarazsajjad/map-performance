@@ -8,18 +8,6 @@ var totalDataPoints = 500;
 
 var iteration = 0;
 
-var cfg = {
-    "radius": 2,
-    "maxOpacity": .8,
-    "scaleRadius": true,
-    "useLocalExtrema": true,
-    latField: 'lat',
-    lngField: 'lng',
-    valueField: 'count'
-  };
-
-var heatmapLayer = new HeatmapOverlay(cfg);
-
 var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom: 18,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
