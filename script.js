@@ -1,7 +1,8 @@
+var query = window.location.search.substring(1);
 
 var map = L.map('map').setView([48.5, 20.1], 12);
 
-var dataDisplayType = 'll_heat'; // simple | cluster | heat | ll_heat
+var dataDisplayType = query.split('=')[1]; // simple | cluster | heat
 
 var totalDataPoints = 500;
 
