@@ -3,15 +3,16 @@ var query = window.location.search.substring(1);
 // var map = L.map('map').setView([48.5, 20.1], 12);
 
 var center = {'lat':24.23, 'lng':23.12};
-var radius = 1050000;
-var totalDataPoints = 50;
+// var radius = 1500000;
 var iteration = 0;
+
 var isHeatMapDisplayed = false;
 var isClusterMapDisplayed = false;
 var isSimpleMapDisplayed = false;
 
-// var map = L.map('map').setView([24.23, 23.12], 12);
-var map = L.map('map').setView([0,0], 12);
+var dataPoints = [];
+
+var map = L.map('map').setView([0,0], 5);
 
 var mapType = query.split('=')[1]; // simple | cluster | heat
 
@@ -37,27 +38,21 @@ else if (mapType == 'heat') {
     displayHeatMap();
 } 
 
-console.log("Value Given: ",totalDataPoints);
-console.log("Total Data Points Generated: ",iteration);
-
 map.on("zoomend",()=>{
     var zoomlevel = map.getZoom()
-    console.log(zoomlevel);
 
     if (mapType == 'heat') {
-        if (zoomlevel >= 14) {
+        if (zoomlevel >= 18) {
             // display simple markers and remove heatmap
-            console.log('display markers');
             map.removeLayer(heatLayer);
             displayMarkers();
             isHeatMapDisplayed = false;
         }
-        else if (zoomlevel < 14) {
+        else if (zoomlevel < 18) {
             // display heatmap only
-            console.log('display heatmap');
-            isSimpleMapDisplayed = false;
             removeMarkers();
             displayHeatMap();
+            isSimpleMapDisplayed = false;
         }
     }
 
@@ -70,21 +65,9 @@ map.on("zoomend",()=>{
 
 function displayHeatMap(){
     if (!isHeatMapDisplayed) {
-        var points = [];
-        var point;
-    
-        for (let y = 0; y < totalDataPoints; y++) {    
-            // points.push([(Math.floor(Math.random() * totalDataPoints * 0.1)), (Math.floor(Math.random() * totalDataPoints * 0.1)), "500"]);
-            point = generateRandomPoint(center, radius);
-            point.push("150");
-            points.push(point);
-            iteration++;
-        }
-
-        points.push([0,0,"200"]);
-    
-        heatLayer = L.heatLayer(points,{radius: 25}).addTo(map);
-        mapLayer = map.addLayer(heatLayer);
+        var Points = addressPoints.map(function (p) { return [p[0], p[1]]; });
+        heatLayer = L.heatLayer(Points,{radius: 25}).addTo(map);
+        map.addLayer(heatLayer);
         isHeatMapDisplayed = true;
     }
 }
@@ -98,11 +81,12 @@ function displayClusterMap(){
             maxClusterRadius: 80,
         });
 
-        for (let y = 0; y < totalDataPoints; y++) {    
-            // markers.addLayer(L.marker([Math.floor(Math.random() * totalDataPoints * 0.1), Math.floor(Math.random() * totalDataPoints * 0.1)]).bindPopup("Iteration No: "+iteration));
-            markers.addLayer(L.marker(generateRandomPoint(center, radius)).bindPopup("Iteration No: "+iteration));
+        var Points = addressPoints.map(function (p) { return [p[0], p[1]]; });
+        for (let i = 0; i < Points.length; i++) {    
+            markers.addLayer(L.circleMarker(Points[i]).bindPopup("Iteration No: "+iteration));
             iteration++;
         }
+
         map.addLayer(markers);
         map.fitBounds(markers.getBounds());
         isClusterMapDisplayed = true;
@@ -112,10 +96,9 @@ function displayClusterMap(){
 
 function displayMarkers(){
     if (!isSimpleMapDisplayed) {
-        testLayer = L.marker([0,0]).addTo(map).bindPopup("Iteration No: "+iteration)
-        for (let y = 0; y < totalDataPoints; y++) {
-            // L.marker([Math.floor(Math.random() * totalDataPoints * 0.1), Math.floor(Math.random() * totalDataPoints * 0.1)]).addTo(map).bindPopup("Iteration No: "+iteration);
-            mapMarkers[y] = L.marker(generateRandomPoint(center, radius)).addTo(map).bindPopup("Iteration No: "+iteration);
+        var Points = addressPoints.map(function (p) { return [p[0], p[1]]; });
+        for (let i = 0; i < Points.length; i++) {
+            mapMarkers[i] = L.circleMarker(Points[i]).addTo(map).bindPopup("Iteration No: "+iteration);
             iteration++;
         }
         isSimpleMapDisplayed = true;
@@ -124,35 +107,36 @@ function displayMarkers(){
 
 
 function removeMarkers(){
-    for (let i = 0; i < mapMarkers.length; i++) {
-        map.removeLayer(mapMarkers[i]);
-        
+    if (isSimpleMapDisplayed) {
+        for (let i = 0; i < mapMarkers.length; i++) {
+            map.removeLayer(mapMarkers[i]);
+            
+        }
     }
-    map.removeLayer(testLayer);
 }
 
 
 // ======================= UTILITY FUNCTIONS ======================
 
-function generateRandomPoint(center, radius) {
-    var x0 = center.lng;
-    var y0 = center.lat;
-    // Convert Radius from meters to degrees.
-    var rd = radius/111300;
+// function generateRandomPoint(center, radius) {
+//     var x0 = center.lng;
+//     var y0 = center.lat;
+//     // Convert Radius from meters to degrees.
+//     var rd = radius/111300;
   
-    var u = Math.random();
-    var v = Math.random();
+//     var u = Math.random();
+//     var v = Math.random();
   
-    var w = rd * Math.sqrt(u);
-    var t = 2 * Math.PI * v;
-    var x = w * Math.cos(t);
-    var y = w * Math.sin(t);
+//     var w = rd * Math.sqrt(u);
+//     var t = 2 * Math.PI * v;
+//     var x = w * Math.cos(t);
+//     var y = w * Math.sin(t);
 
-    var xp = x/Math.cos(y0);
+//     var xp = x/Math.cos(y0);
   
-    // Resulting point.
-    return [ y+y0, xp+x0 ];
-}
+//     // Resulting point.
+//     return [ y+y0, xp+x0 ];
+// }
 
 // function generateRandomPoints(center, radius, count) {
 //     var points = [];
